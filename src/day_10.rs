@@ -1,11 +1,37 @@
-use array2d::{Array2D, Error};
+use array2d::Array2D;
 use core::time;
-use std::{fs, thread};
+use std::{
+    fs,
+    io::{self, Write},
+    thread,
+};
 
-// use termion::{color, style};
+use termion::{
+    color::{self},
+    style,
+};
 
 pub fn part_01() -> usize {
     let s = fs::read_to_string("./src/input_10.txt").expect("couldn't read input file");
+
+    let mut reg_x: i32 = 1;
+    let mut cycle: i32 = 1;
+    let mut signal: i32 = 0;
+    let offset: i32 = 20;
+
+    let words = s.lines().flat_map(|x| x.split(" ")).collect::<Vec<&str>>();
+    for instr in words {
+        cycle += 1;
+        if (cycle + offset) % 40 == 0 {
+            signal += cycle * reg_x;
+        }
+
+        match instr.parse::<i32>() {
+            Ok(addx) => reg_x += addx,
+            Err(_) => continue,
+        };
+    }
+    println!("Day 10 - Part 1: {}", signal);
 
     return 0;
 }
@@ -18,7 +44,7 @@ pub fn part_02() -> usize {
     let mut display: Array2D<char> = Array2D::filled_with(' ', 6, 40);
 
     let words = s.lines().flat_map(|x| x.split(" ")).collect::<Vec<&str>>();
-    for inst in words {
+    for instr in words {
         for h_pos in sprite {
             if cursor[1] as i32 == h_pos {
                 display
@@ -32,7 +58,7 @@ pub fn part_02() -> usize {
             cursor[1] = 0;
         }
 
-        match inst.parse::<i32>() {
+        match instr.parse::<i32>() {
             Ok(addx) => {
                 sprite = sprite.map(|x| x + addx);
             }
@@ -40,15 +66,59 @@ pub fn part_02() -> usize {
         };
     }
 
+    // let colours: [&str; 8] = [
+    //     color::Blue.fg_str(),
+    //     color::Green.fg_str(),
+    //     color::LightYellow.fg_str(),
+    //     color::Red.fg_str(),
+    //     color::Magenta.fg_str(),
+    //     color::Cyan.fg_str(),
+    //     color::LightGreen.fg_str(),
+    //     color::LightRed.fg_str(),
+    // ];
+    // let colours: [&str; 8] = [
+    //     color::Green.fg_str(),
+    //     color::LightGreen.fg_str(),
+    //     color::Green.fg_str(),
+    //     color::LightGreen.fg_str(),
+    //     color::Green.fg_str(),
+    //     color::LightGreen.fg_str(),
+    //     color::Green.fg_str(),
+    //     color::LightGreen.fg_str(),
+    // ];
+
     let disp_rows = display.as_rows();
+    println!("Day 10 - Part 2: ");
+    println!(
+        "{}  ╔═[ Elf OS 2022 ]═══════════════════════════╗",
+        color::LightGreen.fg_str(),
+        //style::Reset
+    );
+    println!("  ║                                           ║");
+
     for i in 0..disp_rows.len() {
-        let st: String = disp_rows[i].iter().collect();
+        let row_text: String = disp_rows[i].iter().collect();
+        print!("  ║  ");
         for j in 0..39 {
-            print!("{}", st.chars().nth(j).expect("died"));
+            print!(
+                "{}{}",
+                color::Cyan.fg_str(), // colours[(i).min(7)],
+                row_text.chars().nth(j).expect("died"),
+            );
+            io::stdout().flush().expect("Died whilst flushing");
             thread::sleep(timeout);
         }
-        println!("{}", st.chars().nth(39).unwrap());
+        println!(
+            "{}{} ║",
+            row_text.chars().nth(39).unwrap(),
+            color::LightGreen.fg_str()
+        );
         thread::sleep(timeout);
     }
+    println!("  ║                                           ║");
+    println!(
+        "  ╚═══════════════════════════════════════════╝{}",
+        style::Reset
+    );
     return 0;
 }
