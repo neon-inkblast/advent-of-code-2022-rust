@@ -20,7 +20,7 @@ pub fn part_01() {
     elves.sort();
     // take last
     let res: &u32 = elves.last().expect("list empty");
-    println!("{}", res)
+    println!("Day 1 - Part 1: {}", res)
 }
 
 pub fn part_02() {
@@ -45,7 +45,7 @@ pub fn part_02() {
     // convert to an iter and use sum()
     let res: u32 = elves.iter().sum();
     // print result
-    println!("{}", res)
+    println!("Day 1 - Part 2: {}", res)
 }
 
 // for each line
